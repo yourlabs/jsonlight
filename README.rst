@@ -78,7 +78,9 @@ As you can see:
 - you don't have to worry about calling ``__jsondump__`` on return values of
   your own ``__jsondump__`` because ``jsonlight.dumps`` will do that
   recursively,
-- you have full control on deserialization just like with ``__setstate__``,
+- you have full control on deserialization just like with ``__setstate__``, but
+  if you call jsonlight.load in there yourself then you don't have to
+  duplicate deserialization logic on nested objects,
 
 Monkey-patches
 --------------
