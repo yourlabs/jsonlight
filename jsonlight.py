@@ -19,7 +19,7 @@ for patch in (UUID, Path):
 
 
 # monkey patching that one is prevented by Python
-class datetime(datetime):
+class datetime(datetime):  # noqa
     def __jsondump__(self):
         return self.isoformat()
 
