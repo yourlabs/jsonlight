@@ -1,0 +1,21 @@
+image: yourlabs/python
+
+qa:
+  stage: test
+  script:
+  - pip install -e git+https://gitlab.com/pycqa/flake8.git#egg=flake8
+  - flake8
+
+pytest:
+  stage: test
+  script:
+  - pip install --user -e .[test]
+  - pytest -vv --cov cli2 --cov-report=xml:coverage.xml --junitxml=report.xml --cov-report=term-missing --strict
+  - CI_PROJECT_PATH=yourlabs/jsonlight CI_BUILD_REPO=https://github.com/yourlabs/jsonlight codecov-bash -f coverage.xml
+  artifacts:
+    reports:
+      junit: report.xml
+
+pypi:
+  stage: deploy
+  script: pypi-release
