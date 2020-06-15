@@ -1,4 +1,5 @@
 import json
+from decimal import Decimal
 from pathlib import Path
 from datetime import datetime
 from uuid import UUID
@@ -13,7 +14,7 @@ def strload(cls, data):
     return cls(data)
 
 
-for patch in (UUID, Path):
+for patch in (Decimal, Path, UUID):
     patch.__jsondump__ = strdump
     patch.__jsonload__ = strload
 

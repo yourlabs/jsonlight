@@ -1,5 +1,6 @@
 from jsonlight import datetime, dump, dumps, load, loads
 
+from decimal import Decimal
 from pathlib import Path
 from uuid import UUID, uuid4
 
@@ -19,6 +20,16 @@ def test_datetime():
 def test_path():
     obj = Path('/foo')
     assert loads(Path, dumps(obj)) == obj
+
+
+def test_decimal():
+    obj = Decimal('3.14')
+    assert loads(Decimal, dumps(obj)) == obj
+
+
+def test_dump():
+    obj = dict(pi=Decimal('3.14'))
+    assert dump(obj) == dict(pi='3.14')
 
 
 def test_obj():

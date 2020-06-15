@@ -52,6 +52,9 @@ instead, which is the sad case of datetime:
     obj = datetime.now()
     assert obj == loads(datetime, dumps(obj))
 
+Custom classes
+--------------
+
 You may also define ``__jsondump__`` and ``__jsonload__`` methods on your own
 classes, example:
 
@@ -82,6 +85,21 @@ As you can see:
   if you call jsonlight.load in there yourself then you don't have to
   duplicate deserialization logic on nested objects,
 
+dump
+----
+
+Alternatively, if you just want to convert a Python datastructure to a JSON
+compatible Python data-structure, that you can for example store in a django
+JSONField, you can use dump and load:
+
+.. code-block:: python
+
+    foo = dict(Decimal('3.14'))
+    json_compatible = dump(foo)
+
+Loading of course, will not restitute the Decimal, it will be stored as a
+string of ``3.14``.
+
 Monkey-patches
 --------------
 
@@ -89,6 +107,7 @@ Monkey-patched stdlib objects are:
 
 - UUID
 - Path
+- Decimal
 
 Feel free to add more.
 
