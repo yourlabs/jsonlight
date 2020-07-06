@@ -41,7 +41,7 @@ You can see that the main difference with ``json.loads`` is that
 ``jsonlight.loads`` requires a type as first argument. This is because
 ``jsonlight.loads`` will first call ``json.loads`` to convert the string into a
 Python object with basic JSON tyes, and then pass that to the type's
-``__jsonload__`` function.
+``__jsonload__`` function, or rely on the typemap defined functions if any.
 
 Nested types
 ------------
