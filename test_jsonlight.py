@@ -1,4 +1,5 @@
-from jsonlight import datetime, dump, dumps, load, loads
+from datetime import datetime
+from jsonlight import dump, dumps, load, loads
 
 from decimal import Decimal
 from pathlib import Path

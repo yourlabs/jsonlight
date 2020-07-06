@@ -2,25 +2,20 @@ jsonlight: json with rudimentary type encoding/decoding for Python
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Adds support for a couple of new Python magic methods to make Python object
-JSON encoding and decoding a bit easier.
+oriented JSON encoding and decoding a bit easier, with the following goals in
+mind:
 
-Tutorial
-========
+- jsonlight.dumps should always work, even if it has to fallback to a string
+- it detects if an object being dumped defines a ``__jsondump__`` method
+- it detects if an object being dumped is of a type defined in the global
+  typemap, or the one that's being used
+- for complete round-tripping, the type schema is maintained in a
+  ``__jsonload__`` method that you must implement
 
-Instead of:
+Standard types
+--------------
 
-.. code:: python
-
-    from json import loads, dumps
-    from uuid import UUID, uuid4
-
-    obj = uuid4()
-    encoded = dumps(str(obj))
-    decoded = UUID(loads(encoded))
-
-    assert obj == decoded
-
-You can do:
+This is what you can already do in Python:
 
 .. code:: python
 
@@ -28,14 +23,19 @@ You can do:
     from uuid import UUID, uuid4
 
     obj = uuid4()
-    encoded = dumps(obj)
-    decoded = loads(UUID, encoded)
-    assert obj == decoded
+    assert obj == UUID(loads(dumps(str(obj))))
 
-This is because jsonlight patches uuid.UUID class to add the following methods:
+All standard Python types such as UUID must have an encode/decode method in the
+default typemap provided by jsonlight, so encoding to JSON should always work.
+However, the type must be specified on load:
 
-- ``__jsondump__``: return a representation of self with JSON data types
-- ``__jsonload__``: instanciate an object based on the result from __jsondump__
+.. code:: python
+
+    from jsonlight import loads, dumps
+    from uuid import UUID, uuid4
+
+    obj = uuid4()
+    assert obj == loads(UUID, dumps(obj))
 
 You can see that the main difference with ``json.loads`` is that
 ``jsonlight.loads`` requires a type as first argument. This is because
@@ -43,20 +43,16 @@ You can see that the main difference with ``json.loads`` is that
 Python object with basic JSON tyes, and then pass that to the type's
 ``__jsonload__`` function.
 
-Other types can't be monkey patched, so you have to import them from jsonlight
-instead, which is the sad case of datetime:
+Nested types
+------------
 
-.. code:: python
+You may leverage the ``__jsondump__`` and ``__jsonload__`` methods based on the
+following conventions:
 
-    from jsonlight import loads, dumps, datetime
-    obj = datetime.now()
-    assert obj == loads(datetime, dumps(obj))
+- ``__jsondump__``: return a representation of self with JSON data types
+- ``__jsonload__``: instanciate an object based on the result from __jsondump__
 
-Custom classes
---------------
-
-You may also define ``__jsondump__`` and ``__jsonload__`` methods on your own
-classes, example:
+Example:
 
 .. code-block:: python
 
@@ -84,34 +80,3 @@ As you can see:
 - you have full control on deserialization just like with ``__setstate__``, but
   if you call jsonlight.load in there yourself then you don't have to
   duplicate deserialization logic on nested objects,
-
-dump
-----
-
-Alternatively, if you just want to convert a Python datastructure to a JSON
-compatible Python data-structure, that you can for example store in a django
-JSONField, you can use dump and load:
-
-.. code-block:: python
-
-    foo = dict(Decimal('3.14'))
-    json_compatible = dump(foo)
-
-Loading of course, will not restitute the Decimal, it will be stored as a
-string of ``3.14``.
-
-Monkey-patches
---------------
-
-Monkey-patched stdlib objects are:
-
-- UUID
-- Path
-- Decimal
-
-Feel free to add more.
-
-Stdlib objects that couldn't be monkey patched, and that you have to import
-from jsonlight instead are:
-
-- datetime
