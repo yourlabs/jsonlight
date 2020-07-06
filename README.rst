@@ -83,11 +83,25 @@ Typemaps
 --------
 
 This lib must support all standard Python types, and it already works for
-things like UUID or Path because they cast fine from and to strings.
+things like UUID or Path because they cast fine from and to strings. However,
+this is not the case for datetimes and there is no JSON standard for datetimes.
 
-If you decided that you wanted to remove the leading slash of all Path objects
-dumps and ensure there is one on load for example, then you could do so by
-setting the encoder and decoder functions in a typemap:
+Since it is a requirement for jsonlight to support all standard python types, a
+default typemap is also included, which makes datetimes export to string with
+``.isoformat()`` and from string with ``.fromisoformat()``:
+
+.. code-block:: python
+
+    now = datetime.now()
+    assert now == loads(datetime, dumps(now))
+
+This is the reason why we have typemaps. The typemap in jsonlight maps a Python
+type to a couple of encoding/decoding functions, so that we have something that
+works without monkey patching.
+
+To illustrate how to use a specific typemap, let's decide we want to remove the
+leading slash of all Path objects dumps and ensure there is one on load, we
+will define our own typemap:
 
 .. code-block:: python
 
@@ -100,12 +114,9 @@ setting the encoder and decoder functions in a typemap:
     assert dumps(Path('/foo/bar'), typemap) == '"foo/bar"'
     assert loads(Path, '"foo/bar"', typemap)
 
-However, this is not the case for datetimes and there is no JSON standard for
-datetimes. Since it is a requirement for jsonlight to support all standard
-python types, a default typemap is also included, which makes datetimes export
-to string with ``.isoformat()`` and from string with ``.fromisoformat()``:
+A couple of possibilities are left to keep in mind:
 
-.. code-block:: python
-
-    now = datetime.now()
-    assert now == loads(datetime, dumps(now))
+- ``typemap.update(jsonlight.typemap)`` adds the default jsonlight typemap to
+  your own,
+- ``jsonlight.typemap.update(typemap)`` adds your own typemap on top of the
+  default typemap.
