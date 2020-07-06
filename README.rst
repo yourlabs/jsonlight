@@ -91,14 +91,14 @@ setting the encoder and decoder functions in a typemap:
 
 .. code-block:: python
 
-    typemap = dict(
-        path=(
+    typemap = {
+        Path: (
             lambda value: str(value).lstrip('/'),
-            lambda data: '/' + Path(data.lstrip('/')),
-        )
-    )
-    assert dumps(Path('/foo'), typemap) == 'foo'
-    assert loads(Path, dumps(Path('/foo')), typemap)
+            lambda data: Path('/' + data.lstrip('/')),
+        ),
+    }
+    assert dumps(Path('/foo/bar'), typemap) == '"foo/bar"'
+    assert loads(Path, '"foo/bar"', typemap)
 
 However, this is not the case for datetimes and there is no JSON standard for
 datetimes. Since it is a requirement for jsonlight to support all standard

@@ -96,3 +96,14 @@ def test_moar_nesting():
     decoded = loads(YourClassList, encoded)
     assert obj[0] == decoded[0]
     assert obj[1] == decoded[1]
+
+
+def test_typemap():
+    typemap = {
+        Path: (
+            lambda value: str(value).lstrip('/'),
+            lambda data: Path('/' + data.lstrip('/')),
+        ),
+    }
+    assert dumps(Path('/foo/bar'), typemap) == '"foo/bar"'
+    assert loads(Path, '"foo/bar"', typemap)

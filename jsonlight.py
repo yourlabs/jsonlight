@@ -14,19 +14,22 @@ def dump(obj, tmap=None):
         obj = obj.__jsondump__()
 
     if isinstance(obj, dict):
-        obj = {key: dump(value) for key, value in obj.items()}
+        return {key: dump(value) for key, value in obj.items()}
     elif isinstance(obj, list):
-        obj = [dump(value) for value in obj]
-    elif type(obj) in typemap:
-        obj = typemap[type(obj)][0](obj)
-    elif not isinstance(obj, (str, float, int)):
-        obj = str(obj)
+        return [dump(value) for value in obj]
 
-    return obj
+    for cls in typemap:
+        if isinstance(obj, cls):
+            return typemap[cls][0](obj)
+
+    if isinstance(obj, (str, float, int)):
+        return obj
+
+    return str(obj)
 
 
 def dumps(obj, tmap=None):
-    return json.dumps(dump(obj))
+    return json.dumps(dump(obj, tmap))
 
 
 def load(cls, data, tmap=None):
@@ -38,6 +41,6 @@ def load(cls, data, tmap=None):
     return cls(data)
 
 
-def loads(cls, data):
+def loads(cls, data, tmap=None):
     data = json.loads(data)
-    return load(cls, data)
+    return load(cls, data, tmap)
