@@ -112,7 +112,7 @@ will define our own typemap:
         ),
     }
     assert dumps(Path('/foo/bar'), typemap) == '"foo/bar"'
-    assert loads(Path, '"foo/bar"', typemap)
+    assert loads(Path, '"foo/bar"', typemap) == Path('/foo/bar')
 
 A couple of possibilities are left to keep in mind:
 
