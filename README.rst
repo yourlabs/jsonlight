@@ -59,18 +59,16 @@ Example:
     from jsonlight import load
 
     class YourClass:
-        def __init__(self, uuid=None):
-            self.uuid = uuid or uuid4()
+        def __init__(self):
+            self.now = datetime.now()
 
         def __jsondump__(self):
-            return dict(uuid=self.uuid)
+            return dict(now=self.now)
 
         @classmethod
         def __jsonload__(cls, data):
-            return cls(load(UUID, data['uuid'])
+            return cls(load(datetime, data['now'])
 
-            # This also works, but would not illustrate how to support recursion
-            # return cls(UUID(data['uuid']))
 
 As you can see:
 
@@ -80,3 +78,34 @@ As you can see:
 - you have full control on deserialization just like with ``__setstate__``, but
   if you call jsonlight.load in there yourself then you don't have to
   duplicate deserialization logic on nested objects,
+
+Typemaps
+--------
+
+This lib must support all standard Python types, and it already works for
+things like UUID or Path because they cast fine from and to strings.
+
+If you decided that you wanted to remove the leading slash of all Path objects
+dumps and ensure there is one on load for example, then you could do so by
+setting the encoder and decoder functions in a typemap:
+
+.. code-block:: python
+
+    typemap = dict(
+        path=(
+            lambda value: str(value).lstrip('/'),
+            lambda data: '/' + Path(data.lstrip('/')),
+        )
+    )
+    assert dumps(Path('/foo'), typemap) == 'foo'
+    assert loads(Path, dumps(Path('/foo')), typemap)
+
+However, this is not the case for datetimes and there is no JSON standard for
+datetimes. Since it is a requirement for jsonlight to support all standard
+python types, a default typemap is also included, which makes datetimes export
+to string with ``.isoformat()`` and from string with ``.fromisoformat()``:
+
+.. code-block:: python
+
+    now = datetime.now()
+    assert now == loads(datetime, dumps(now))
