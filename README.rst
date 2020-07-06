@@ -19,7 +19,7 @@ This is what you can already do in Python:
 
 .. code:: python
 
-    from jsonlight import loads, dumps
+    from json import loads, dumps
     from uuid import UUID, uuid4
 
     obj = uuid4()
