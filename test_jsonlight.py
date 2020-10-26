@@ -106,4 +106,4 @@ def test_typemap():
         ),
     }
     assert dumps(Path('/foo/bar'), typemap) == '"foo/bar"'
-    assert loads(Path, '"foo/bar"', typemap) == Path('/foo/bar')
+    assert loads(Path, '"   foo/bar"', typemap) == Path('/foo/bar')
